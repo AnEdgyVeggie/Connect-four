@@ -68,6 +68,7 @@ public class GameBoard {
             winner = player;
             return true;
         }
+        return false;
     }
 
     boolean checkDown(int correct, int position, int row, char player) {
