@@ -5,6 +5,7 @@ public class GameBoard {
     public char[][] board;
     public int width = 7;
     public int height = 6;
+    private int winner;
 
 
     public GameBoard() {
@@ -19,12 +20,14 @@ public class GameBoard {
         if (player == 1) { piece = 'R'; }
         else { piece = 'Y'; }
 
-        while (row >= 0 || !gameWon) {
+        while (row >= 0) {
             if (board[row][position] == ' ' ){
                 board[row][position] = piece;
                     // when win conditions are added, implement an if else
                     // that will display the winner
-                    gameWon = checkWinCondition(position, row, piece) ;
+                   if (checkWinCondition(position, row, piece, player)) {
+                        winner = player;
+                   }
                     return row;
             }
             else {
@@ -35,18 +38,36 @@ public class GameBoard {
         return -1;
     }
 
-    boolean checkWinCondition(int position, int row, char player) {
-         if (checkDown(0, position, row, player)) {
-             System.out.println( player + " WINS");
-         };
-         if (checkLeft(0, position, row, row, player, true)) {
-             System.out.println( player + " WINS");
+    boolean checkWinCondition(int position, int row, char piece, int player) {
+         if (checkDown(0, position, row, piece)){
+             winner = player;
+             return true;
          }
-        if (checkRight(0, position, row, row, player, true)) {
-            System.out.println( player + " WINS");
+
+         // checks for last play and to the left
+        if (checkLeft(4, 0, position, row, row, piece, true)) {
+            winner = player;
+            return true;
         }
 
-         return false;
+        // checks for last play and to the right
+        if (checkRight(4, 0, position, row, row, piece, true)){
+            winner = player;
+            return true;
+        }
+
+        // Below will check for the last play, to the right AND left
+        if (checkLeft(3, 0, position, row, row, piece, true)
+         && checkRight(1, 0, position, row, row, piece, true)){
+            winner = player;
+            return true;
+        }
+
+        if (checkLeft(1, 0, position, row, row, piece, true)
+                && checkRight(3, 0, position, row, row, piece, true)){
+            winner = player;
+            return true;
+        }
     }
 
     boolean checkDown(int correct, int position, int row, char player) {
@@ -66,7 +87,7 @@ public class GameBoard {
         return false;
     }
 
-    boolean checkLeft(int correct, int position, int row, int startingRow, char player, boolean initialLoop) {
+    boolean checkLeft(int TTL, int correct, int position, int row, int startingRow, char player, boolean initialLoop) {
         // base cases, we are going to check ALL possibilities to the left
         // including diagonals, so check that you don't move off the board
         if (position == -1) return false;
@@ -81,25 +102,25 @@ public class GameBoard {
         //for any variation of tiles going left, instead of only straight directions
         if (board[row][position] == player) {
             correct++;
-            if (correct == 4) return true;
+            if (correct == TTL) return true;
             position--;
             if (row == startingRow) {
-                 checkStraight =  checkLeft(correct, position, row, startingRow, player, false);
+                 checkStraight =  checkLeft(TTL, correct, position, row, startingRow, player, false);
             }
             if (row < startingRow || initialLoop) {
                 int checkRow = row -= 1;
-                checkUp = checkLeft(correct, position, checkRow, startingRow,  player, false);
+                checkUp = checkLeft(TTL, correct, position, checkRow, startingRow,  player, false);
             }
             if (row > startingRow || initialLoop) {
                 int checkRow = row += 1;
-                 checkDown = checkLeft(correct, position, checkRow, startingRow, player, false);
+                 checkDown = checkLeft(TTL, correct, position, checkRow, startingRow, player, false);
             }
         }
-        // if any of these conditions are true, will indicate a win, otherwise its a loss
+        // if any of these conditions are true, will indicate a win, otherwise it's a loss
         return (checkStraight || checkUp || checkDown);
     }
 
-    boolean checkRight(int correct, int position, int row, int startingRow, char player, boolean initialLoop) {
+    boolean checkRight(int TTL, int correct, int position, int row, int startingRow, char player, boolean initialLoop) {
         // base cases, we are going to check ALL possibilities to the left
         // including diagonals, so check that you don't move off the board
         if (position == width) return false;
@@ -114,18 +135,18 @@ public class GameBoard {
         // for any variation of tiles going left, instead of only straight directions
         if (board[row][position] == player) {
             correct++;
-            if (correct == 4) return true;
+            if (correct == TTL) return true;
             position++;
             if (row == startingRow) {
-                checkStraight =  checkRight(correct, position, row, startingRow, player, false);
+                checkStraight =  checkRight(TTL, correct, position, row, startingRow, player, false);
             }
             if (row < startingRow || initialLoop) {
                 int checkRow = row -= 1;
-                checkUp = checkRight(correct, position, checkRow, startingRow,  player, false);
+                checkUp = checkRight(TTL, correct, position, checkRow, startingRow,  player, false);
             }
             if (row > startingRow || initialLoop) {
                 int checkRow = row += 1;
-                checkDown = checkRight(correct, position, checkRow, startingRow, player, false);
+                checkDown = checkRight(TTL, correct, position, checkRow, startingRow, player, false);
             }
         }
         // if any of these conditions are true, will indicate a win, otherwise its a loss
@@ -149,5 +170,11 @@ public class GameBoard {
             System.out.println("-----------------");
     }
 
+    public void setWinner(int player) {
+        winner = player;
+    }
+    public int getWinner() {
+        return winner;
+    }
 
 }

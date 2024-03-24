@@ -18,10 +18,12 @@ public class Main {
         }
 
         // R WINS STRAIGHT LEFT
-        {//            gb.dropPiece(2, 1);
+        {
+//            gb.dropPiece(2, 1);
 //            gb.dropPiece(3, 1);
 //            gb.dropPiece(4, 1);
 //            gb.dropPiece(5, 1);
+
         }
 
         // Y WINS STRAIGHT RIGHT
