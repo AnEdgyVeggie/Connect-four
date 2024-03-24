@@ -1,61 +1,33 @@
+import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
-
+        Scanner input = new Scanner(System.in);
         GameBoard gb = new GameBoard();
-        // Y WINS LEFT DIAGONAL
-        {//        gb.dropPiece(0, 1);
-//        gb.dropPiece(1, 1);
-//        gb.dropPiece(0, 1);
-//
-//        gb.dropPiece(1, 1);
-//        gb.dropPiece(0, 2);
-//        gb.dropPiece(2, 1);
-//
-//        gb.dropPiece(1, 2);
-//        gb.dropPiece(0, 2);
-//        gb.dropPiece(2, 2);
-//        gb.dropPiece(3, 2);
-        }
-
-        // R WINS STRAIGHT LEFT
-        {
-            gb.dropPiece(2, 1);
-            gb.dropPiece(3, 1);
-            gb.dropPiece(4, 1);
-
-
-        }
-
-        // Y WINS STRAIGHT RIGHT
-        {
-//            gb.dropPiece(0, 2);
-//            gb.dropPiece(1, 2);
-//            gb.dropPiece(2, 2);
-//            gb.dropPiece(3, 2);
-        }
-
-        // Y WINS RIGHT DIAGONAL
-        {
-//            gb.dropPiece(3, 1);
-//            gb.dropPiece(2, 1);
-//            gb.dropPiece(1, 1);
-//            gb.dropPiece(3, 1);
-//            gb.dropPiece(2, 1);
-//            gb.dropPiece(3, 1);
-//
-//            gb.dropPiece(3, 2);
-//            gb.dropPiece(2, 2);
-//            gb.dropPiece(1, 2);
-//            gb.dropPiece(0, 2);
-        }
-
-        // R WINS STRAIGHT UP
-        {//            gb.dropPiece(0, 1);
-//            gb.dropPiece(0, 1);
-//            gb.dropPiece(0, 1);
-//            gb.dropPiece(0, 1);
-        }
-
+        int activePlayer = 1;
         gb.printBoard();
+
+        while(gb.getWinner() == -1) {
+
+            if (activePlayer == 1) activePlayer = 2;
+            else activePlayer = 1;
+
+            int moveSuccess = -1;
+            while (moveSuccess == -1) {
+                System.out.println("Player " + activePlayer + ", please make a move (0 - 6");
+                String selection =  input.nextLine();
+                int move = Integer.parseInt(selection);
+
+                // need try / catch block
+                moveSuccess = gb.dropPiece(move, activePlayer);
+                System.out.flush();
+                gb.printBoard();
+            }
+
+        }
+
+        System.out.println("WINNER!!");
+        System.out.println("PLAYER " + gb.getWinner() + " WINS!");
     }
+
+
 }

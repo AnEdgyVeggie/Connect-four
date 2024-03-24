@@ -10,6 +10,7 @@ public class GameBoard {
 
     public GameBoard() {
         board = new char[height][width];
+        winner = -1;
         initializeBoard();
     }
 
@@ -25,9 +26,7 @@ public class GameBoard {
                 board[row][position] = piece;
                     // when win conditions are added, implement an if else
                     // that will display the winner
-                   if (checkWinCondition(position, row, piece, player)) {
-                        winner = player;
-                   }
+                    checkWinCondition(position, row, piece, player);
                     return row;
             }
             else {
@@ -38,42 +37,70 @@ public class GameBoard {
         return -1;
     }
 
-    boolean checkWinCondition(int position, int row, char piece, int player) {
+    void checkWinCondition(int position, int row, char piece, int player) {
          if (checkDown(0, position, row, piece)){
              winner = player;
-             return true;
+             return;
          }
 
-         // checks for last play and to the left
+         // TTL (Time-To-Live is the score needed to secure a win. Called TTL because below, it becomes the amount
+        // of time spent in other branches
+        // checks for last play and to the left
         if (checkLeft(4, 0, position, row, row, piece, true)) {
             winner = player;
-            return true;
+            return;
         }
-
         // checks for last play and to the right
         if (checkRight(4, 0, position, row, row, piece, true)){
             winner = player;
-            return true;
+            return;
         }
 
         // Below will check for the last play, to the right AND left
-        if (checkLeft(3, 0, position, row, row, piece, true)
-         && checkRight(1, 0, position, row, row, piece, true)){
+        // TTL total is 5, because they both will award correct++, which means instead of starting at
+        // 1/4 when starting at the end, you are starting at 2, so it needs to be 2/5 so that it requires 3 other pieces still
+
+        // Straight line
+        if (checkLeft(3, 0, position, row, row, piece, false)
+         && checkRight(2, 0, position, row, row, piece, false)){
             winner = player;
-            return true;
+            return;
+        }
+        if (checkLeft(2, 0, position, row, row, piece, false)
+                && checkRight(3, 0, position, row, row, piece, false)){
+            winner = player;
+            return;
         }
 
-        if (checkLeft(1, 0, position, row, row, piece, true)
-                && checkRight(3, 0, position, row, row, piece, true)){
+        // left to right slant
+        if (checkLeft(3, 0, position, row++, row, piece, false)
+                && checkRight(2, 0, position--, row, row, piece, false)){
             winner = player;
-            return true;
+            return;
         }
-        return false;
+        if (checkLeft(2, 0, position, row++, row, piece, false)
+                && checkRight(3, 0, position, row--, row, piece, false)){
+            winner = player;
+            return;
+        }
+
+        // right to left slant
+        if (checkLeft(3, 0, position, row--, row, piece, false)
+                && checkRight(2, 0, position++, row, row, piece, false)){
+            winner = player;
+            return;
+        }
+
+        if (checkLeft(2, 0, position, row--, row, piece, false)
+                && checkRight(3, 0, position, row++, row, piece, false)){
+            winner = player;
+        }
+
     }
 
     boolean checkDown(int correct, int position, int row, char player) {
         // base cases. if at the lowest row, cant look any further
-        if ( row == board.length) return false;
+        if ( row >= board.length) return false;
 
         if (board[row][position] == player)
         {
@@ -92,12 +119,11 @@ public class GameBoard {
         // base cases, we are going to check ALL possibilities to the left
         // including diagonals, so check that you don't move off the board
         if (position == -1) return false;
-        if (row == board.length) return false;
+        if (row >= board.length) return false;
         if (row == -1) return false;
 
-        // these are check conditions for all 3 directions
+        // these are check conditions for all 3 directions, used at end of function
         boolean checkStraight = false, checkDown = false, checkUp = false;
-
 
         // initialLoop allows this function to check in 3 directions at once. Without it, it will end up checking
         //for any variation of tiles going left, instead of only straight directions
@@ -109,11 +135,12 @@ public class GameBoard {
                  checkStraight =  checkLeft(TTL, correct, position, row, startingRow, player, false);
             }
             if (row < startingRow || initialLoop) {
-                int checkRow = row -= 1;
-                checkUp = checkLeft(TTL, correct, position, checkRow, startingRow,  player, false);
+                int checkRow = row - 1;
+                checkUp = checkLeft(TTL, correct, position, checkRow, startingRow, player, false);
             }
             if (row > startingRow || initialLoop) {
-                int checkRow = row += 1;
+                int checkRow = row + 1;
+                System.out.println("NEXT CHECK 2: [" + checkRow + ',' + position + ']');
                  checkDown = checkLeft(TTL, correct, position, checkRow, startingRow, player, false);
             }
         }
@@ -125,15 +152,12 @@ public class GameBoard {
         // base cases, we are going to check ALL possibilities to the left
         // including diagonals, so check that you don't move off the board
         if (position == width) return false;
-        if (row == board.length) return false;
+        if (row >= board.length) return false;
         if (row == -1) return false;
-
         // these are check conditions for all 3 directions
         boolean checkStraight = false, checkDown = false, checkUp = false;
-
-
         // initialLoop allows this function to check in 3 directions at once. Without it, it will end up checking
-        // for any variation of tiles going left, instead of only straight directions
+        // for any variation of tiles going right, instead of only straight directions
         if (board[row][position] == player) {
             correct++;
             if (correct == TTL) return true;
@@ -142,13 +166,17 @@ public class GameBoard {
                 checkStraight =  checkRight(TTL, correct, position, row, startingRow, player, false);
             }
             if (row < startingRow || initialLoop) {
-                int checkRow = row -= 1;
+                int checkRow = row - 1;
+
                 checkUp = checkRight(TTL, correct, position, checkRow, startingRow,  player, false);
             }
             if (row > startingRow || initialLoop) {
-                int checkRow = row += 1;
+                int checkRow = row + 1;
+                System.out.println("ROW: " + row);
+                System.out.println("NEXT CHECK 4: [" + checkRow + ',' + position + ']');
                 checkDown = checkRight(TTL, correct, position, checkRow, startingRow, player, false);
             }
+
         }
         // if any of these conditions are true, will indicate a win, otherwise its a loss
         return (checkStraight || checkUp || checkDown);
