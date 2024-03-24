@@ -16,7 +16,7 @@ public class GameBoard {
         if (player == 1) { piece = 'R'; }
         else { piece = 'Y'; }
 
-        while (row != 0) {
+        while (row >= 0) {
             if (board[row][position] == ' ' ){
                 board[row][position] = piece;
                 return true;
@@ -25,6 +25,7 @@ public class GameBoard {
                 row--;
             }
         }
+        // Returns false if the column is full
         return false;
     }
 
