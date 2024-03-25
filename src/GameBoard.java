@@ -73,26 +73,26 @@ public class GameBoard {
         }
 
         // left to right slant
-        if (checkLeft(3, 0, position, row++, row, piece, false)
-                && checkRight(2, 0, position--, row, row, piece, false)){
+        if (checkLeft(3, 0, position,row,row + 1,  piece, false)
+                && checkRight(2, 0, position, row, row - 1, piece, false)){
             winner = player;
             return;
         }
-        if (checkLeft(2, 0, position, row++, row, piece, false)
-                && checkRight(3, 0, position, row--, row, piece, false)){
+        if (checkLeft(2, 0, position, row, row + 1, piece, false)
+                && checkRight(3, 0, position, row, row - 1, piece, false)){
             winner = player;
             return;
         }
 
         // right to left slant
-        if (checkLeft(3, 0, position, row--, row, piece, false)
-                && checkRight(2, 0, position++, row, row, piece, false)){
+        if (checkLeft(3, 0, position, row, row - 1, piece, false)
+                && checkRight(2, 0, position, row, row + 1, piece, false)){
             winner = player;
             return;
         }
 
-        if (checkLeft(2, 0, position, row--, row, piece, false)
-                && checkRight(3, 0, position, row++, row, piece, false)){
+        if (checkLeft(2, 0, position, row, row - 1, piece, false)
+                && checkRight(3, 0, position, row, row + 1, piece, false)){
             winner = player;
         }
 
@@ -140,7 +140,7 @@ public class GameBoard {
             }
             if (row > startingRow || initialLoop) {
                 int checkRow = row + 1;
-                System.out.println("NEXT CHECK 2: [" + checkRow + ',' + position + ']');
+
                  checkDown = checkLeft(TTL, correct, position, checkRow, startingRow, player, false);
             }
         }
@@ -172,8 +172,6 @@ public class GameBoard {
             }
             if (row > startingRow || initialLoop) {
                 int checkRow = row + 1;
-                System.out.println("ROW: " + row);
-                System.out.println("NEXT CHECK 4: [" + checkRow + ',' + position + ']');
                 checkDown = checkRight(TTL, correct, position, checkRow, startingRow, player, false);
             }
 

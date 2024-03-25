@@ -4,7 +4,7 @@ public class Main {
         Scanner input = new Scanner(System.in);
         GameBoard gb = new GameBoard();
         int activePlayer = 1;
-        gb.printBoard();
+
 
         while(gb.getWinner() == -1) {
 
@@ -13,6 +13,7 @@ public class Main {
 
             int moveSuccess = -1;
             while (moveSuccess == -1) {
+
                 System.out.println("Player " + activePlayer + ", please make a move (0 - 6");
                 String selection =  input.nextLine();
                 int move = Integer.parseInt(selection);
@@ -22,6 +23,7 @@ public class Main {
                 System.out.flush();
                 gb.printBoard();
             }
+
 
         }
 
