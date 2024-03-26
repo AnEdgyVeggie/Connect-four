@@ -13,7 +13,7 @@ public class GameBoard {
         initializeBoard();
     }
 
-    int dropPiece(int position, int player) {
+    boolean dropPiece(int position, int player) {
         int row = 5;
         char piece;
         boolean gameWon = false;
@@ -23,17 +23,15 @@ public class GameBoard {
         while (row >= 0) {
             if (board[row][position] == ' ' ){
                 board[row][position] = piece;
-                    // when win conditions are added, implement an if else
-                    // that will display the winner
                     checkWinCondition(position, row, piece, player);
-                    return row;
+                    return true;
             }
             else {
                 row--;
             }
         }
-        // Returns -1 if the column is full
-        return -1;
+        // Returns false if the column is full
+        return false;
     }
 
     void checkWinCondition(int position, int row, char piece, int player) {
@@ -127,7 +125,9 @@ public class GameBoard {
         // these are check conditions for all 3 directions, used at end of function
         boolean checkStraight = false, checkDown = false, checkUp = false;
 
-        // initialLoop allows this function to check in 3 directions at once. Without it, it will end up checking for any variation of tiles going left/right, instead of only straight directions
+        // initialLoop runs each direction to check in every direction at once. After the initial loop,
+        // the row will either be equal, lower, or hight that the row it started at. It will end up
+        // checking for any variation of tiles going left/right, instead of only straight directions
         if (board[row][position] == player) {
             correct++;
             if (correct == TTL) return true;
@@ -157,7 +157,7 @@ public class GameBoard {
     }
 
     void printBoard() {
-        System.out.println("--0 1 2 3 4 5 6--");
+        System.out.println("- 0 1 2 3 4 5 6 -");
         for (int i = 0; i < board.length; i++) {
             System.out.print("[|");
             for (char space : board[i]){
@@ -165,7 +165,7 @@ public class GameBoard {
             }
             System.out.println("]");
         }
-        System.out.println("--0 1 2 3 4 5 6--");
+        System.out.println("- 0 1 2 3 4 5 6 -");
         System.out.println();
         System.out.println("=================");
         System.out.println();
