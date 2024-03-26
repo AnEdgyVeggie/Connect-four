@@ -42,7 +42,7 @@ public class GameBoard {
              return;
          }
 
-         // TTL (Time-To-Live is the score needed to secure a win. Called TTL because below, it becomes the amount
+         // TTL (Time-To-Live) is the score needed to secure a win. Called TTL because below, it becomes the amount
         // of time spent in other branches
         // checks for last play and to the left
         if (checkSides("left",4, 0, position, row, row, piece, true)) {
@@ -56,8 +56,9 @@ public class GameBoard {
         }
 
         // Below will check for the last play, to the right AND left
-        // TTL total is 5, because they both will award correct++, which means instead of starting at
-        // 1/4 when starting at the end, you are starting at 2, so it needs to be 2/5 so that it requires 3 other pieces still
+        // TTL total is 5, because both left and right will both count a point for the piece you play, instead of only
+        // checking one direction, which means instead of starting a 1/4 points when starting at the end, you are
+        // starting at 2, so it needs to be 2/5 so that it requires 3 other pieces still
 
         // Straight line
         if (checkSides("left",3, 0, position, row, row, piece, false)
@@ -93,6 +94,7 @@ public class GameBoard {
         if (checkSides("left",2, 0, position, row, row - 1, piece, false)
                 && checkSides("right", 3, 0, position, row, row + 1, piece, false)){
             winner = player;
+            // no return statement, as this is the end of the function anyway
         }
 
     }
@@ -155,6 +157,7 @@ public class GameBoard {
     }
 
     void printBoard() {
+        System.out.println("--0 1 2 3 4 5 6--");
         for (int i = 0; i < board.length; i++) {
             System.out.print("[|");
             for (char space : board[i]){
@@ -162,7 +165,10 @@ public class GameBoard {
             }
             System.out.println("]");
         }
-            System.out.println("-----------------");
+        System.out.println("--0 1 2 3 4 5 6--");
+        System.out.println();
+        System.out.println("=================");
+        System.out.println();
     }
 
     public int getWinner() {
