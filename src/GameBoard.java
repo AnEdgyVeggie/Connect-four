@@ -1,4 +1,8 @@
+
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.lang.Integer;
 
 public class GameBoard {
 
@@ -6,51 +10,73 @@ public class GameBoard {
     public int width = 7;
     public int height = 6;
     private int winner;
+    private int simWin;
+//    private int turn;
+    private final Map<Integer, Integer> minimaxScore = new HashMap<Integer, Integer>();
 
     public GameBoard() {
         board = new char[height][width];
         winner = -1;
+        simWin = -1;
+//        turn = 1;
         initializeBoard();
+        minimaxScore.put(1, -1);
+        minimaxScore.put(2, 1);
+        minimaxScore.put(0, 0);
     }
 
-    boolean dropPiece(int position, int player) {
+
+    int dropPiece(int position, int player, boolean simulated) {
         int row = 5;
         char piece;
-        boolean gameWon = false;
         if (player == 1) { piece = 'R'; }
         else { piece = 'Y'; }
 
+        // the simulated variable splits checks up so that the AI's theoretical checks aren't misconstrued
+        // as actual plays. This variable is passed into the win-condition checker
         while (row >= 0) {
             if (board[row][position] == ' ' ){
                 board[row][position] = piece;
-                    checkWinCondition(position, row, piece, player);
-                    return true;
+                checkWinCondition(position, row, piece, player, simulated);
+                return row;
             }
             else {
                 row--;
             }
         }
-        // Returns false if the column is full
-        return false;
+        // Returns -1 if the column is full
+        return -1;
     }
 
-    void checkWinCondition(int position, int row, char piece, int player) {
-         if (checkDown(0, position, row, piece)){
-             winner = player;
-             return;
-         }
+    void removePiece(int position) {
+        int row = 0;
+        while (board[row][position] == ' ') {
+            if (row == 6) return;
+            row++;
+        }
+        board[row][position]  = ' ';
+    }
 
+    void checkWinCondition(int position, int row, char piece, int player, boolean simulated) {
+
+         if (checkDown(0, position, row, piece)){
+             simWin = player;
+             if (!simulated) winner = player;
+             return ;
+         }
          // TTL (Time-To-Live) is the score needed to secure a win. Called TTL because below, it becomes the amount
         // of time spent in other branches
         // checks for last play and to the left
         if (checkSides("left",4, 0, position, row, row, piece, true)) {
-            winner = player;
-            return;
+            simWin = player;
+            if (!simulated) winner = player;
+            return ;
         }
         // checks for last play and to the right
         if (checkSides("right", 4, 0, position, row, row, piece, true)){
-            winner = player;
-            return;
+            simWin = player;
+            if (!simulated) winner = player;
+            return ;
         }
 
         // Below will check for the last play, to the right AND left
@@ -61,41 +87,46 @@ public class GameBoard {
         // Straight line
         if (checkSides("left",3, 0, position, row, row, piece, false)
          && checkSides("right", 2, 0, position, row, row, piece, false)){
-            winner = player;
-            return;
+            simWin = player;
+            if (!simulated) winner = player;
+            return ;
         }
         if (checkSides("left",2, 0, position, row, row, piece, false)
                 && checkSides("right", 3, 0, position, row, row, piece, false)){
-            winner = player;
-            return;
+            simWin = player;
+            if (!simulated) winner = player;
+            return ;
         }
 
         // left to right slant
         if (checkSides("left",3, 0, position,row,row + 1,  piece, false)
                 && checkSides("right", 2, 0, position, row, row - 1, piece, false)){
-            winner = player;
-            return;
+            simWin = player;
+            if (!simulated) winner = player;
+            return ;
         }
         if (checkSides("left",2, 0, position, row, row + 1, piece, false)
                 && checkSides("right", 3, 0, position, row, row - 1, piece, false)){
-            winner = player;
-            return;
+            simWin = player;
+            if (!simulated) winner = player;
+            return ;
         }
 
         // right to left slant
         if (checkSides("left",3, 0, position, row, row - 1, piece, false)
                 && checkSides("right", 2, 0, position, row, row + 1, piece, false)){
-            winner = player;
-            return;
+            simWin = player;
+            if (!simulated) winner = player;
+            return ;
         }
 
         if (checkSides("left",2, 0, position, row, row - 1, piece, false)
                 && checkSides("right", 3, 0, position, row, row + 1, piece, false)){
-            winner = player;
-            // no return statement, as this is the end of the function anyway
+            simWin =  player;
+            if (!simulated) winner = player;
+            return;
         }
-
-    }
+}
 
     boolean checkDown(int correct, int position, int row, char player) {
         // base cases. if at the lowest row, cant look any further
@@ -115,7 +146,7 @@ public class GameBoard {
     }
 
     boolean checkSides(String direction, int TTL, int correct, int position, int row, int startingRow, char player, boolean initialLoop) {
-        // base cases, we are going to check ALL possibilities to the left
+        // base cases, we are going to check ALL possibilities to the sides
         // including diagonals, so check that you don't move off the board
         if (position == width) return false;
         if (position == -1) return false;
@@ -170,6 +201,83 @@ public class GameBoard {
         System.out.println("=================");
         System.out.println();
     }
+
+
+    public int chooseBestMove() {
+        int bestMove = -1;
+        int bestScore = Integer.MIN_VALUE;
+        int score = 0;
+
+        for (int i = 0; i <= width - 1; i++) {
+            // checks for space on the board so it isnt wasting a check
+            if (board[0][i] == ' ') {
+                // drop a simulated piece, check to see if it wins
+                dropPiece(i, 2, true);
+                // if the simulated piece wins, check to see who wins
+                if (simWin != -1) {
+                    // set this piece as a higher priority (higher than the -1 / 1) based on the player number
+                    if (simWin == 2) score = 2;
+                    else score = -2;
+                }
+                else {
+                    score = minimax(false, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                }
+                // complete the simulation: remove the simulated pieces
+                removePiece(i);
+                // reset the simulation win condition to allow it to run again
+                simWin = -1;
+                
+                if (score >= bestScore) {
+                    bestScore = score;
+                    bestMove = i;
+                }
+            }
+        }
+        return bestMove;
+    }
+
+    private int minimax(boolean isMaximizing, int alpha, int beta) {
+        // base case return when it finds a simulated win
+        if (simWin != -1) {
+            // consults the look-up table to determine the reward
+            return minimaxScore.get(simWin);
+        }
+
+        // if isMaximizing, it is AI's turn, else it is Player.
+        int bestScore;
+        if (isMaximizing) {
+            // sets bestscore to the minimal possible integer
+            bestScore = Integer.MIN_VALUE;
+            for (int i = 0; i <= width - 1; i++ ) {
+                // dropPiece also checks win conditions
+                if (dropPiece(i, 2, true) != -1) {
+                    // recursively checks the other players best move
+                    int score = minimax(false, alpha, beta);
+                    removePiece(i);
+                    bestScore = Math.max(score, bestScore);
+                    alpha = Math.max(alpha, score);
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+        } else {
+            bestScore = Integer.MAX_VALUE;
+            for (int i = 0; i <= width - 1; i++ ) {
+                if (dropPiece(i, 1, true) != -1) {
+                    int score = minimax(true, alpha, beta);
+                    removePiece(i);
+                    bestScore = Math.min(score, bestScore);
+                    beta = Math.min(beta, score);
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+        }
+        return bestScore;
+    }
+
 
     public int getWinner() {
         return winner;
