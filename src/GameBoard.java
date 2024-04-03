@@ -1,3 +1,7 @@
+// Ethan Sylvester | 101479568   |   Taylor Martin | 100849882   |   Amanda Gurney | 101443253
+// Data Structures and Algorithms | COMP 2080
+// Assignment 2 : Connect 4
+// Data of last update: 4/3/2024
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,14 +15,12 @@ public class GameBoard {
     public int height = 6;
     private int winner;
     private int simWin;
-//    private int turn;
     private final Map<Integer, Integer> minimaxScore = new HashMap<Integer, Integer>();
 
     public GameBoard() {
         board = new char[height][width];
         winner = -1;
         simWin = -1;
-//        turn = 1;
         initializeBoard();
         minimaxScore.put(1, -1);
         minimaxScore.put(2, 1);
@@ -84,7 +86,7 @@ public class GameBoard {
         // checking one direction, which means instead of starting a 1/4 points when starting at the end, you are
         // starting at 2, so it needs to be 2/5 so that it requires 3 other pieces still
 
-        // Straight line
+        // ########## Straight line win
         if (checkSides("left",3, 0, position, row, row, piece, false)
          && checkSides("right", 2, 0, position, row, row, piece, false)){
             simWin = player;
@@ -98,7 +100,7 @@ public class GameBoard {
             return ;
         }
 
-        // left to right slant
+        // ##########  left to right slant win
         if (checkSides("left",3, 0, position,row,row + 1,  piece, false)
                 && checkSides("right", 2, 0, position, row, row - 1, piece, false)){
             simWin = player;
@@ -112,7 +114,7 @@ public class GameBoard {
             return ;
         }
 
-        // right to left slant
+        // ########## right to left slant win
         if (checkSides("left",3, 0, position, row, row - 1, piece, false)
                 && checkSides("right", 2, 0, position, row, row + 1, piece, false)){
             simWin = player;
@@ -226,7 +228,7 @@ public class GameBoard {
                 removePiece(i);
                 // reset the simulation win condition to allow it to run again
                 simWin = -1;
-                
+
                 if (score >= bestScore) {
                     bestScore = score;
                     bestMove = i;
